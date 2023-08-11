@@ -4,11 +4,13 @@
     <div class="p-4">
       <div class="bg-white border-2 p-4  border-zinc-500 rounded-md mb-6 flex items-center justify-between">
 
-          <h3 class="text-xl font-semibold">
-            Listado de Medicamentos
-          </h3>
-          <p-button (click)="abrirModal('')">Registrar medicamento</p-button>
-        
+        <h3 class="text-xl font-semibold">
+          Listado de Medicamentos
+        </h3>
+        <p-button (click)="abrirModal('')">
+          <i class="pi pi-plus pr-2"></i>Registrar medicamento
+        </p-button>
+
       </div>
 
       <div class="flex justify-center my-8">
@@ -43,10 +45,10 @@
                 {{medicamento.lab_fabrica}}
               </td>
               <td>
-                {{ medicamento.fecha_fabricacion }}
+                {{medicamento.fecha_fabricacion | date:'dd-MM-yyyy'}}
               </td>
               <td>
-                {{ medicamento.fecha_vencimiento }}
+                {{ medicamento.fecha_vencimiento | date:'dd-MM-yyyy' }}
               </td>
               <td [ngClass]="medicamento.stock > 0 ? 'text-green-500' : 'text-red-500'">
                 {{medicamento.stock}}
@@ -108,7 +110,8 @@
         <div class="grid  rounded-md mb-4">
           <label for="">Fecha de vencimiento</label>
           <input type="date" pInputText formControlName="fecha_vencimiento">
-          <span *ngIf="isValidField('fecha_vencimiento')" class="text-red-500 font-semibold mb-2">
+          <span *ngIf="isValidField('fecha_vencimiento')" formControlName="fecha_vencimiento"
+            class="text-red-500 font-semibold mb-2">
             Este campo es requerido
           </span>
         </div>
@@ -147,6 +150,9 @@
           <label for="">Cantidad: *</label>
           <input type="number" pInputText placeholder="Cantidad" (keyup)="verTotalPagar()" formControlName="cantidad"
             [(ngModel)]="cantidad">
+          <span *ngIf="isValidCantidad('cantidad')" class="text-red-500 font-semibold mb-2">
+            Este campo es requerido
+          </span>
         </div>
 
         <div class="grid rounded-md mb-4">

@@ -19,8 +19,9 @@
                     <h2>Fecha de venta hasta</h2>
                     <p-calendar [(ngModel)]="endDate" dateFormat="yy-mm-dd"></p-calendar>
                 </div>
-                <button pButton type="button" label="Filtrar" (click)="searchVenta()"><i
-                        class="pi pi-filter-fill pr-2"></i></button>
+                <button pButton type="button" label="Filtrar" (click)="searchVenta()">
+                    <i class="pi pi-filter-fill pr-2"></i>
+                </button>
 
             </div>
 
@@ -46,7 +47,10 @@
                                 {{venta.medicamentoDto.nombre}}
                             </td>
                             <td>
-                                {{venta.fecha_venta}}
+                                {{venta.medicamentoDto.lab_fabrica}}
+                            </td>
+                            <td>
+                                {{ venta.fecha_venta | date:'dd/MM/yyyy, HH:mm:ss' }}
                             </td>
                             <td>
                                 {{ venta.cantidad }}
@@ -56,7 +60,7 @@
                             </td>
 
                             <td>
-                                $ {{venta.valor_total.toLocaleString()}}
+                                $ {{ venta.valor_total.toLocaleString() }}
                             </td>
                         </tr>
                     </ng-template>

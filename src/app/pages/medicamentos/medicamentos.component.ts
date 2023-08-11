@@ -1,6 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Medicamento } from 'src/app/models/medicamento.model';
 import { PrimengModule } from 'src/app/primeng/primeng.module';
 import { MedicamentoService } from 'src/app/services/medicamento.service';
@@ -9,12 +15,7 @@ import Swal from 'sweetalert2';
 
 @Component({
   standalone: true,
-  imports: [ 
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule,
-    PrimengModule
-  ],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, PrimengModule],
   selector: 'app-medicamento',
   templateUrl: './medicamentos.component.html',
 })
@@ -57,49 +58,70 @@ export class MedicamentosComponent implements OnInit {
     );
   }
 
-  onSave(): void {
-    if (this.medicineForm.invalid) {
-      this.medicineForm.markAllAsTouched();
-      return;
-    }
+  isValidCantidad(field: string): boolean | null {
+    return (
+      this.saleForm.controls[field].errors &&
+      this.saleForm.controls[field].touched
+    );
   }
 
   registrar() {
-    const medicineData = {
-      nombre: this.medicineForm.controls['nombre'].value,
-      lab_fabrica: this.medicineForm.controls['lab_fabrica'].value,
-      fecha_fabricacion: this.medicineForm.controls['fecha_fabricacion'].value,
-      fecha_vencimiento: this.medicineForm.controls['fecha_vencimiento'].value,
-      stock: parseInt(this.medicineForm.controls['stock'].value),
-      valor_unitario: parseFloat(
-        this.medicineForm.controls['valor_unitario'].value
-      ),
-    };
 
-    console.log(medicineData);
+    const fechaFab = new Date(this.medicineForm.controls['fecha_fabricacion'].value);
+    const fechaVencimiento = new Date(this.medicineForm.controls['fecha_vencimiento'].value);
 
-    this.medicamentoService.createMedicine(medicineData).subscribe({
-      next: (res: any) => {
-        this.visible = false;
-        this.listar();
-        Swal.fire({
-          title: `${res.message}`,
-          icon: 'success',
-          showCancelButton: false,
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Aceptar',
-        });
-      },
-      error: (err) => {
-        Swal.fire({
-          title: `${err}`,
-          icon: 'error',
-          showCancelButton: false,
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Aceptar',
-        });
-      },
-    });
+    if(fechaVencimiento < fechaFab){
+      Swal.fire({
+        title: 'Atención',
+        text: 'Fecha de vencimiento debe ser mayor a la fecha de fabricación!!',
+        icon: 'warning',
+        showCancelButton: false,
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'Aceptar',
+        customClass: {
+          container: 'my-swal'
+        }
+      });
+    } else {
+      const medicineData = {
+        nombre: this.medicineForm.controls['nombre'].value,
+        lab_fabrica: this.medicineForm.controls['lab_fabrica'].value,
+        fecha_fabricacion: this.medicineForm.controls['fecha_fabricacion'].value,
+        fecha_vencimiento: this.medicineForm.controls['fecha_vencimiento'].value,
+        stock: parseInt(this.medicineForm.controls['stock'].value),
+        valor_unitario: parseFloat(
+          this.medicineForm.controls['valor_unitario'].value
+        ),
+      };
+  
+      console.log(medicineData);
+  
+      this.medicamentoService.createMedicine(medicineData).subscribe({
+        next: (res: any) => {
+          this.visible = false;
+          this.listar();
+          Swal.fire({
+            title: `${res.message}`,
+            icon: 'success',
+            showCancelButton: false,
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Aceptar',
+          });
+        },
+        error: (err) => {
+          this.visible = false;
+          Swal.fire({
+            title: `${err}`,
+            icon: 'error',
+            showCancelButton: false,
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Aceptar',
+          });
+        },
+      });
+    }
+
+    
   }
 
   editar() {
@@ -113,13 +135,13 @@ export class MedicamentosComponent implements OnInit {
       valor_unitario: this.medicineForm.controls['valor_unitario'].value,
     };
 
-    console.log(medicineUpdated)
+    console.log(medicineUpdated);
 
     this.medicamentoService.editMedicine(medicineUpdated, id).subscribe({
       next: (res: any) => {
-        console.log("fetch")
+        console.log('fetch');
 
-        console.log(res)
+        console.log(res);
         this.visible = false;
         this.listar();
         Swal.fire({
@@ -137,7 +159,7 @@ export class MedicamentosComponent implements OnInit {
     });
   }
 
-  delete(id: string) {
+  eliminarMedicamento(id: string) {
     this.medicamentoService.delete(id).subscribe({
       next: (res: any) => {
         this.visible = false;
@@ -155,6 +177,27 @@ export class MedicamentosComponent implements OnInit {
         console.log(err);
       },
     });
+  }
+
+  delete(id: string) {
+
+
+
+    Swal.fire({
+      title: 'Atención',
+      text: "¿Estás seguro que desea eliminar el medicamento?, se eliminaran las ventas realizadas",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si, bórralo'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.eliminarMedicamento(id);
+      }
+    })
+
+    
   }
 
   abrirModal(id: string) {
@@ -207,10 +250,18 @@ export class MedicamentosComponent implements OnInit {
   });
 
   sell() {
+
+    if (this.saleForm.invalid) {
+      this.saleForm.markAllAsTouched();
+      return;
+    }
+
     const ventaData = {
-      cantidad: parseInt(this.saleForm.controls['cantidad'].value),
+      cantidad: this.saleForm.controls['cantidad'].value,
       medicamento: this.medicineId,
     };
+
+    console.log(ventaData);
 
     this.ventaService.createSale(ventaData).subscribe({
       next: (data: any) => {
@@ -226,10 +277,9 @@ export class MedicamentosComponent implements OnInit {
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Aceptar',
         });
-
       },
       error: (err) => {
-        console.log(err)
+        console.log(err);
         this.venta = false;
         Swal.fire({
           title: 'Atención',
@@ -239,11 +289,11 @@ export class MedicamentosComponent implements OnInit {
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Aceptar',
         });
-      }
+      },
     });
   }
 
-  verTotalPagar(){
+  verTotalPagar() {
     this.total_pagar = this.valor_unitario * this.cantidad;
   }
 
@@ -257,12 +307,16 @@ export class MedicamentosComponent implements OnInit {
         this.stockDisponible = data.stock;
         this.valor_unitario = data.valor_unitario;
       },
-      error: (err) => console.log(err)
-    })
+      error: (err) => console.log(err),
+    });
   }
 
   enviarModal() {
-    this.visible = true;
+    if (this.medicineForm.invalid) {
+      this.medicineForm.markAllAsTouched();
+      return;
+    }
+
     if (this.medicineId === '') {
       this.registrar();
     } else {
@@ -285,7 +339,7 @@ export class MedicamentosComponent implements OnInit {
   searchText: string = '';
 
   searchMedicamento() {
-    console.log(this.filteredMedicamentos)
+    console.log(this.filteredMedicamentos);
     this.filteredMedicamentos = this.medicamentos.filter(
       (medicamento) =>
         medicamento.nombre

@@ -32,6 +32,7 @@ export class VentasComponent implements OnInit{
    */
   titles: string[] = [
     'Medicamento',
+    'Laboratorio',
     'Fecha Venta',
     'Cantidad',
     'Valor Unitario',
@@ -41,18 +42,16 @@ export class VentasComponent implements OnInit{
   searchText: string = '';
 
   searchVenta() {
-    console.log(this.filteredVentas)
-    /*this.filteredVentas = this.ventas.filter(
-      (venta) =>
-        venta.fecha_venta.toLowerCase().includes(this.searchText.toLowerCase())
-    );*/
 
     this.filteredVentas = this.ventas.filter(
       venta =>
-        new Date(venta.fecha_venta) >= this.startDate &&
-        new Date(venta.fecha_venta) <= this.endDate
+        
+        new Date(venta.fecha_venta).setHours(0, 0, 0, 0) >= this.startDate.setHours(0, 0, 0, 0) &&
+        new Date(venta.fecha_venta).setHours(0, 0, 0, 0) <= this.endDate.setHours(0, 0, 0, 0)
     );
   }
+  
+
 
   ngOnInit(): void {
     this.ventaService.getAllSales().subscribe({
