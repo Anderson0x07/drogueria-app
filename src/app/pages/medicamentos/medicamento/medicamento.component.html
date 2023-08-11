@@ -1,0 +1,143 @@
+<div class="container my-4 ">
+  <div class="p-4">
+    <div
+      class="bg-white shadow-md border-t-2 p-4 border-b border-zinc-500 rounded-md mb-6 flex items-center justify-between">
+
+      <div class="border-gray-400  ">
+        <h3 class=" flex items-center text-xl  ">
+          Listado de Medicamentos
+        </h3>
+      </div>
+      <div>
+        <p-button (click)="abrirModal('')">Registrar medicamento</p-button>
+      </div>
+    </div>
+
+
+    <h1 class="text-4xl font-semibold text-center">{{title}}</h1>
+    <div class="flex justify-center mt-8">
+      <input type="text" class="text-center" (keyup)="searchMedicamento()" [(ngModel)]="searchText"
+        placeholder="Buscar" pInputText>
+    </div>
+
+    <div class="mb-3">
+      <p-button type="button" icon="pi pi-chevron-left" (click)="prev()" [disabled]="isFirstPage()"
+        styleClass="p-button-text"></p-button>
+      <p-button type="button" icon="pi pi-refresh" (click)="reset()" styleClass="p-button-text"></p-button>
+      <p-button type="button" icon="pi pi-chevron-right" (click)="next()" [disabled]="isLastPage()"
+        styleClass="p-button-text"></p-button>
+    </div>
+    <div class="card">
+      <p-table [value]="medicamentos" [paginator]="true" [rows]="5" [showCurrentPageReport]="true"
+        [tableStyle]="{ 'min-width': '50rem' }"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+        [rowsPerPageOptions]="[10, 25, 50]">
+        <ng-template pTemplate="header">
+          <tr>
+            <th *ngFor="let title of titles">
+              {{title}}
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body">
+
+          <tr *ngFor="let medicamento of filteredMedicamentos;">
+            <td>
+              {{medicamento.id}}
+            </td>
+            <td>
+              {{medicamento.nombre}}
+            </td>
+            <td>
+              {{medicamento.lab_fabrica}}
+            </td>
+            <td>
+              {{ medicamento.fecha_fabricacion }}
+            </td>
+            <td>
+              {{ medicamento.fecha_vencimiento }}
+            </td>
+            <td [ngClass]="medicamento.stock > 0 ? 'text-green-500' : 'text-red-500'">
+              {{medicamento.stock}} </td>
+            <td>
+              $ {{medicamento.valor_unitario.toLocaleString()}}
+            </td>
+            <td>
+              <p-button (click)="abrirModal(medicamento.id)">Editar</p-button>
+              <p-button (click)="delete(medicamento.id)">Eliminar</p-button>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template *ngIf="filteredMedicamentos.length==0">
+          <h1 class="text-center text-xl">No se encontró el medicamento</h1>
+        </ng-template>
+
+        <ng-template pTemplate="paginatorleft">
+          <p-button type="button" icon="pi pi-plus" styleClass="p-button-text"></p-button>
+        </ng-template>
+        <ng-template pTemplate="paginatorright">
+          <p-button type="button" icon="pi pi-cloud" styleClass="p-button-text"></p-button>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
+
+
+<div class="card ">
+  <p-dialog [header]="header" [(visible)]="visible" [modal]="true" [style]="{ width: '50vw' }" [draggable]="false"
+    [resizable]="false">
+    <div>
+      <form [formGroup]="medicineForm" (ngSubmit)="enviarModal()" autocomplete="off">
+
+        <div class="grid rounded-md mb-4">
+          <label for="">Nombre del medicamento</label>
+          <input type="text" pInputText placeholder="Nombre del medicamento" formControlName="nombre">
+          <span *ngIf="isValidField('nombre')" class="text-red-500 font-semibold mb-2">
+            Este campo es requerido
+          </span>
+        </div>
+        <div class="grid rounded-md mb-4">
+          <label for="">Laboratorio de fabrica</label>
+          <input type="text" pInputText placeholder="Laboratorio" formControlName="lab_fabrica">
+          <span *ngIf="isValidField('lab_fabrica')" class="text-red-500 font-semibold mb-2">
+            Este campo es requerido
+          </span>
+        </div>
+        <div class="grid  rounded-md mb-4">
+          <label for="">Fecha de fabricación</label>
+          <input type="date" pInputText formControlName="fecha_fabricacion">
+          <span *ngIf="isValidField('fecha_fabricacion')" class="text-red-500 font-semibold mb-2">
+            Este campo es requerido
+          </span>
+        </div>
+        <div class="grid  rounded-md mb-4">
+          <label for="">Fecha de vencimiento</label>
+          <input type="date" pInputText formControlName="fecha_vencimiento">
+          <span *ngIf="isValidField('fecha_vencimiento')" class="text-red-500 font-semibold mb-2">
+            Este campo es requerido
+          </span>
+        </div>
+
+        <div class="grid rounded-md mb-4">
+          <label for="">Stock</label>
+          <input type="number" pInputText formControlName="stock">
+          <span *ngIf="isValidField('stock')" class="text-red-500 font-semibold mb-2">
+            Este campo es requerido
+          </span>
+        </div>
+
+        <div class="grid rounded-md mb-4">
+          <label for="">Valor Unitario</label>
+          <input type="number" pInputText formControlName="valor_unitario">
+          <span *ngIf="isValidField('valor_unitario')" class="text-red-500 font-semibold mb-2">
+            Este campo es requerido
+          </span>
+        </div>
+        
+        <p-button type="submit" label="Enviar"></p-button>
+      </form>
+    </div>
+  </p-dialog>
+</div>
