@@ -1,7 +1,6 @@
 <div class="container my-4 ">
   <div class="p-4">
-    <div
-      class="bg-white shadow-md border-t-2 p-4 border-b border-zinc-500 rounded-md mb-6 flex items-center justify-between">
+    <div class="bg-white shadow-md border-t-2 p-4 border-b border-zinc-500 rounded-md mb-6 flex items-center justify-between">
 
       <div class="border-gray-400  ">
         <h3 class=" flex items-center text-xl  ">
@@ -15,36 +14,29 @@
 
 
     <h1 class="text-4xl font-semibold text-center">{{title}}</h1>
-    <div class="flex justify-center mt-8">
+    
+    <div class="flex justify-center my-8">
       <input type="text" class="text-center" (keyup)="searchMedicamento()" [(ngModel)]="searchText"
         placeholder="Buscar" pInputText>
     </div>
 
-    <div class="mb-3">
-      <p-button type="button" icon="pi pi-chevron-left" (click)="prev()" [disabled]="isFirstPage()"
-        styleClass="p-button-text"></p-button>
-      <p-button type="button" icon="pi pi-refresh" (click)="reset()" styleClass="p-button-text"></p-button>
-      <p-button type="button" icon="pi pi-chevron-right" (click)="next()" [disabled]="isLastPage()"
-        styleClass="p-button-text"></p-button>
-    </div>
-    <div class="card">
-      <p-table [value]="medicamentos" [paginator]="true" [rows]="5" [showCurrentPageReport]="true"
-        [tableStyle]="{ 'min-width': '50rem' }"
-        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+    <div class="container">
+
+      <p-table [value]="filteredMedicamentos" [paginator]="true" [rows]="5" [showCurrentPageReport]="true"
+        [tableStyle]="{ 'min-width': '50rem' }" currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
         [rowsPerPageOptions]="[10, 25, 50]">
         <ng-template pTemplate="header">
           <tr>
             <th *ngFor="let title of titles">
               {{title}}
             </th>
+            <th colspan="3" class="text-center">
+              Opciones
+            </th>
           </tr>
         </ng-template>
-        <ng-template pTemplate="body">
-
-          <tr *ngFor="let medicamento of filteredMedicamentos;">
-            <td>
-              {{medicamento.id}}
-            </td>
+        <ng-template pTemplate="body" let-medicamento >
+          <tr>
             <td>
               {{medicamento.nombre}}
             </td>
@@ -63,8 +55,13 @@
               $ {{medicamento.valor_unitario.toLocaleString()}}
             </td>
             <td>
-              <p-button (click)="abrirModal(medicamento.id)">Editar</p-button>
-              <p-button (click)="delete(medicamento.id)">Eliminar</p-button>
+              <button class="hover:text-xl" (click)="abrirModal(medicamento.id)"><i class="pi pi-pencil"></i></button>
+            </td>
+            <td>
+              <button class="hover:text-xl" (click)="delete(medicamento.id)"><i class="pi pi-trash"></i></button>
+            </td>
+            <td>
+              <button class="bg-sky-500 text-white rounded-md px-8 py-1 hover:bg-sky-600" (click)="sell(medicamento.id)"><i class="pi pi-dollar mx-1"></i></button>
             </td>
           </tr>
         </ng-template>
@@ -73,16 +70,13 @@
           <h1 class="text-center text-xl">No se encontró el medicamento</h1>
         </ng-template>
 
-        <ng-template pTemplate="paginatorleft">
-          <p-button type="button" icon="pi pi-plus" styleClass="p-button-text"></p-button>
-        </ng-template>
-        <ng-template pTemplate="paginatorright">
-          <p-button type="button" icon="pi pi-cloud" styleClass="p-button-text"></p-button>
-        </ng-template>
+        
       </p-table>
     </div>
   </div>
 </div>
+
+
 
 
 <div class="card ">

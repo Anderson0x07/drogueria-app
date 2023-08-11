@@ -32,7 +32,7 @@ export class MedicamentoService {
    * @returns msj y status de created
    */
   public createMedicine(medicamento: any) {
-    return this.http.post(`${API_URL}ejercicios`, medicamento);
+    return this.http.post(`${API_URL}medicamentos`, medicamento);
   }
 
   /**
@@ -51,6 +51,6 @@ export class MedicamentoService {
    * @returns msj de eliminado
    */
   public delete(id: string) {
-    return this.http.delete(`${API_URL}medicamento/${id}`);
+    return this.http.delete(`${API_URL}medicamentos/${id}`);
   }
 }

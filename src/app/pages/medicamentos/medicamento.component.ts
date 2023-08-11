@@ -8,22 +8,23 @@ import Swal from 'sweetalert2';
   selector: 'app-medicamento',
   templateUrl: './medicamento.component.html',
 })
-export class MedicamentoComponent implements OnInit{
+export class MedicamentoComponent implements OnInit {
   constructor(
     private medicamentoService: MedicamentoService,
     private _fb: FormBuilder
   ) {}
 
-  public visible = false;
-  public medicineId = '';
-  public header = '';
+  visible = false;
+  medicineId = '';
+  header = '';
+  venta = false;
 
   title = 'Drogueria Konex';
 
   medicamentos: Medicamento[] = [];
   filteredMedicamentos: Medicamento[] = [];
 
-  public medicineForm: FormGroup = this._fb.group({
+  medicineForm: FormGroup = this._fb.group({
     nombre: ['', [Validators.required]],
     lab_fabrica: ['', [Validators.required]],
     fecha_fabricacion: ['', [Validators.required]],
@@ -46,7 +47,7 @@ export class MedicamentoComponent implements OnInit{
     }
   }
 
-  public registrar() {
+  registrar() {
     const medicineData = {
       nombre: this.medicineForm.controls['nombre'].value,
       lab_fabrica: this.medicineForm.controls['lab_fabrica'].value,
@@ -58,11 +59,12 @@ export class MedicamentoComponent implements OnInit{
       ),
     };
 
-    console.log(medicineData)
+    console.log(medicineData);
 
     this.medicamentoService.createMedicine(medicineData).subscribe({
       next: (res: any) => {
         this.visible = false;
+        this.listar();
         Swal.fire({
           title: `${res.message}`,
           icon: 'success',
@@ -70,7 +72,6 @@ export class MedicamentoComponent implements OnInit{
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Aceptar',
         });
-        this.listar();
       },
       error: (err) => {
         Swal.fire({
@@ -84,7 +85,7 @@ export class MedicamentoComponent implements OnInit{
     });
   }
 
-  public editar() {
+  editar() {
     const id = this.medicineId;
     const medicineUpdated = {
       nombre: this.medicineForm.controls['nombre'].value,
@@ -100,8 +101,29 @@ export class MedicamentoComponent implements OnInit{
     this.medicamentoService.editMedicine(medicineUpdated, id).subscribe({
       next: (res: any) => {
         this.visible = false;
+        this.listar();
         Swal.fire({
-          title: `${res.message}`,
+          title: 'Información',
+          text: 'Medicamento actualizado exitosamente',
+          icon: 'success',
+          showCancelButton: false,
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Aceptar',
+        });
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    });
+  }
+
+  delete(id: string) {
+    this.medicamentoService.delete(id).subscribe({
+      next: (res: any) => {
+        this.visible = false;
+        Swal.fire({
+          title: 'Información',
+          text: res.message,
           icon: 'success',
           showCancelButton: false,
           confirmButtonColor: '#3085d6',
@@ -115,25 +137,6 @@ export class MedicamentoComponent implements OnInit{
     });
   }
 
-  public delete(id: string){
-    this.medicamentoService.delete(id).subscribe({
-      next: (res:any) => {
-        this.visible = false;
-        Swal.fire({
-          title: `${res.message}`,
-          icon: 'success',
-          showCancelButton: false,
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Aceptar'
-        })
-        this.listar();
-      },
-      error: err => {
-        console.log(err)
-      }
-    })
-  }
-
   abrirModal(id: string) {
     this.medicineId = id;
     this.visible = true;
@@ -141,40 +144,63 @@ export class MedicamentoComponent implements OnInit{
       this.medicineForm.reset();
       this.header = 'Añadir nuevo medicamento';
     } else {
-      this.medicamentoService.getMedicine(this.medicineId).subscribe(
-        (data) => {
+      this.medicamentoService.getMedicine(this.medicineId).subscribe({
+        next: (data) => {
           console.log('MEDICINA UNO');
+
           console.log(data);
-          /*if (data != null) {
+
+          if (data != null) {
             this.medicineForm.get('nombre')?.setValue(data?.nombre);
             this.medicineForm.get('lab_fabrica')?.setValue(data?.lab_fabrica);
-            this.medicineForm.get('fecha_fabricacion')?.setValue(data?.fecha_fabricacion);
-            this.medicineForm.get('fecha_vencimiento')?.setValue(data?.fecha_vencimiento);
+            this.medicineForm
+              .get('fecha_fabricacion')
+              ?.setValue(data?.fecha_fabricacion);
+            this.medicineForm
+              .get('fecha_vencimiento')
+              ?.setValue(data?.fecha_vencimiento);
             this.medicineForm.get('stock')?.setValue(data?.stock);
-            this.medicineForm.get('valor_unitario')?.setValue(data?.valor_unitario);
-          }*/
+            this.medicineForm
+              .get('valor_unitario')
+              ?.setValue(data?.valor_unitario);
+          }
         },
-        (err) => console.log(err)
-      );
-      this.header = 'Editar ejercicio';
+        error: (err) => console.log(err),
+      });
+      this.header = 'Editar medicamento';
     }
   }
 
-  public listar() {
+  listar() {
     this.medicamentoService.getAllMedicines().subscribe({
-      next: (res) => {
-        this.medicamentos = res;
+      next: (data) => {
+        console.log(data);
+        this.medicamentos = data;
+        this.filteredMedicamentos = data;
       },
+      error: (err) => console.log(err),
     });
   }
 
-  /**
-   * Método para editar el método de acuerdo si hay id de ejercicio o no
-   *
-   * @params
-   * @return Método para el ngSubmit
-   */
-  public enviarModal() {
+  sell(id: string) {
+    this.venta = true;
+
+    const ventaData = {
+      cantidad: parseInt(this.medicineForm.controls['cantidad'].value),
+      medicamento: id,
+    }
+
+    this.medicamentoService.getAllMedicines().subscribe({
+      next: (data) => {
+        console.log(data);
+        this.medicamentos = data;
+        this.filteredMedicamentos = data;
+      },
+      error: (err) => console.log(err)
+    });
+  }
+
+  enviarModal() {
     this.visible = true;
     if (this.medicineId === '') {
       this.registrar();
@@ -183,47 +209,38 @@ export class MedicamentoComponent implements OnInit{
     }
   }
 
-  
   titles: string[] = [
-    '#',
     'Nombre',
     'Lab. Fabrica',
     'Fecha Fabricación',
     'Fecha Vencimiento',
     'Stock',
     'Valor Unitario',
-    'Acciones',
   ];
 
   searchText: string = '';
 
   searchMedicamento() {
     this.filteredMedicamentos = this.medicamentos.filter(
-      (medicamentos) =>
-        medicamentos.nombre
+      (medicamento) =>
+        medicamento.nombre
           .toLowerCase()
           .includes(this.searchText.toLowerCase()) ||
-        medicamentos.lab_fabrica
+        medicamento.lab_fabrica
           .toLowerCase()
           .includes(this.searchText.toLowerCase())
     );
   }
 
-  formatDate(dateString: string) {
-    const dateObject = new Date(dateString);
-    console.log(dateObject);
-
-    return dateObject;
-  }
-
-  ngOnInit() {
-    this.medicamentoService.getAllMedicines().subscribe(
-      (data: Medicamento[]) => {
+  ngOnInit(): void {
+    this.medicamentoService.getAllMedicines().subscribe({
+      next: (data) => {
+        console.log(data);
         this.medicamentos = data;
         this.filteredMedicamentos = data;
       },
-      (err) => console.log(err)
-    );
+      error: (err) => console.log(err)
+    });
   }
 
   first = 0;
@@ -235,15 +252,12 @@ export class MedicamentoComponent implements OnInit{
   prev() {
     this.first = this.first - this.rows;
   }
-  reset() {
-    this.first = 0;
-  }
   isLastPage(): boolean {
-    return this.medicamentos
-      ? this.first === this.medicamentos.length - this.rows
+    return this.filteredMedicamentos
+      ? this.first === this.filteredMedicamentos.length - this.rows
       : true;
   }
   isFirstPage(): boolean {
-    return this.medicamentos ? this.first === 0 : true;
+    return this.filteredMedicamentos ? this.first === 0 : true;
   }
 }
