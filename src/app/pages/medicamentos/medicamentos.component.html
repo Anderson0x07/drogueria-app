@@ -1,6 +1,7 @@
 <div class="container my-4 ">
   <div class="p-4">
-    <div class="bg-white shadow-md border-t-2 p-4 border-b border-zinc-500 rounded-md mb-6 flex items-center justify-between">
+    <div
+      class="bg-white shadow-md border-t-2 p-4 border-b border-zinc-500 rounded-md mb-6 flex items-center justify-between">
 
       <div class="border-gray-400  ">
         <h3 class=" flex items-center text-xl  ">
@@ -14,16 +15,17 @@
 
 
     <h1 class="text-4xl font-semibold text-center">{{title}}</h1>
-    
+
     <div class="flex justify-center my-8">
-      <input type="text" class="text-center" (keyup)="searchMedicamento()" [(ngModel)]="searchText"
-        placeholder="Buscar" pInputText>
+      <input type="text" class="text-center" (keyup)="searchMedicamento()" [(ngModel)]="searchText" placeholder="Buscar"
+        pInputText>
     </div>
 
     <div class="container">
 
       <p-table [value]="filteredMedicamentos" [paginator]="true" [rows]="5" [showCurrentPageReport]="true"
-        [tableStyle]="{ 'min-width': '50rem' }" currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+        [tableStyle]="{ 'min-width': '50rem' }"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
         [rowsPerPageOptions]="[10, 25, 50]">
         <ng-template pTemplate="header">
           <tr>
@@ -35,7 +37,9 @@
             </th>
           </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-medicamento >
+
+
+        <ng-template pTemplate="body" let-medicamento>
           <tr>
             <td>
               {{medicamento.nombre}}
@@ -50,7 +54,8 @@
               {{ medicamento.fecha_vencimiento }}
             </td>
             <td [ngClass]="medicamento.stock > 0 ? 'text-green-500' : 'text-red-500'">
-              {{medicamento.stock}} </td>
+              {{medicamento.stock}}
+            </td>
             <td>
               $ {{medicamento.valor_unitario.toLocaleString()}}
             </td>
@@ -61,16 +66,15 @@
               <button class="hover:text-xl" (click)="delete(medicamento.id)"><i class="pi pi-trash"></i></button>
             </td>
             <td>
-              <button class="bg-sky-500 text-white rounded-md px-8 py-1 hover:bg-sky-600" (click)="sell(medicamento.id)"><i class="pi pi-dollar mx-1"></i></button>
+              <button [disabled]="medicamento.stock == 0"
+                class="bg-sky-500 text-white rounded-md px-8 py-1 hover:bg-sky-600"
+                (click)="abrirVentaModal(medicamento.id)">
+                <i class="pi pi-dollar mx-1"></i>
+              </button>
             </td>
           </tr>
         </ng-template>
 
-        <ng-template *ngIf="filteredMedicamentos.length==0">
-          <h1 class="text-center text-xl">No se encontró el medicamento</h1>
-        </ng-template>
-
-        
       </p-table>
     </div>
   </div>
@@ -129,7 +133,27 @@
             Este campo es requerido
           </span>
         </div>
-        
+
+        <p-button type="submit" label="Enviar"></p-button>
+      </form>
+    </div>
+  </p-dialog>
+</div>
+
+
+<!--MODAL PARA HACER UNA VENTA-->
+<div class="card ">
+  <p-dialog header="Venta" [(visible)]="venta" [modal]="true" [style]="{ width: '50vw' }" [draggable]="false"
+    [resizable]="false">
+    <div>
+      <form [formGroup]="saleForm" (ngSubmit)="sell()" autocomplete="off">
+
+        <div class="grid rounded-md mb-4">
+          <label for="">Cantidad: *</label>
+          <input type="number" pInputText placeholder="Cantidad" formControlName="cantidad">
+
+        </div>
+
         <p-button type="submit" label="Enviar"></p-button>
       </form>
     </div>

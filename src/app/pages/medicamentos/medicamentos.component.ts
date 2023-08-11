@@ -1,16 +1,27 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Medicamento } from 'src/app/models/medicamento.model';
+import { PrimengModule } from 'src/app/primeng/primeng.module';
 import { MedicamentoService } from 'src/app/services/medicamento.service';
+import { VentaService } from 'src/app/services/venta.service';
 import Swal from 'sweetalert2';
 
 @Component({
+  standalone: true,
+  imports: [ 
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    PrimengModule
+  ],
   selector: 'app-medicamento',
-  templateUrl: './medicamento.component.html',
+  templateUrl: './medicamentos.component.html',
 })
-export class MedicamentoComponent implements OnInit {
+export class MedicamentosComponent implements OnInit {
   constructor(
     private medicamentoService: MedicamentoService,
+    private ventaService: VentaService,
     private _fb: FormBuilder
   ) {}
 
@@ -18,6 +29,8 @@ export class MedicamentoComponent implements OnInit {
   medicineId = '';
   header = '';
   venta = false;
+
+  stockDisponible = 50;
 
   title = 'Drogueria Konex';
 
@@ -182,22 +195,58 @@ export class MedicamentoComponent implements OnInit {
     });
   }
 
-  sell(id: string) {
-    this.venta = true;
+  saleForm: FormGroup = this._fb.group({
+    cantidad: ['', [Validators.required]],
+  });
 
+  sell() {
     const ventaData = {
-      cantidad: parseInt(this.medicineForm.controls['cantidad'].value),
-      medicamento: id,
-    }
+      cantidad: parseInt(this.saleForm.controls['cantidad'].value),
+      medicamento: this.medicineId,
+    };
 
-    this.medicamentoService.getAllMedicines().subscribe({
-      next: (data) => {
+    this.ventaService.createSale(ventaData).subscribe({
+      next: (data: any) => {
+        this.venta = false;
         console.log(data);
-        this.medicamentos = data;
-        this.filteredMedicamentos = data;
+        this.listar();
+
+        Swal.fire({
+          title: 'Información',
+          text: data.message,
+          icon: 'success',
+          showCancelButton: false,
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Aceptar',
+        });
+
+      },
+      error: (err) => {
+        console.log(err)
+        this.venta = false;
+        Swal.fire({
+          title: 'Atención',
+          text: err.error.error,
+          icon: 'error',
+          showCancelButton: false,
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Aceptar',
+        });
+      }
+    });
+  }
+
+  abrirVentaModal(id: string) {
+    this.medicineId = id;
+    this.venta = true;
+    this.saleForm.reset();
+
+    this.medicamentoService.getMedicine(id).subscribe({
+      next: (data) => {
+        this.stockDisponible = data.stock
       },
       error: (err) => console.log(err)
-    });
+    })
   }
 
   enviarModal() {
@@ -209,6 +258,9 @@ export class MedicamentoComponent implements OnInit {
     }
   }
 
+  /**
+   * Header de la tabla de medicamentos
+   */
   titles: string[] = [
     'Nombre',
     'Lab. Fabrica',
@@ -221,6 +273,7 @@ export class MedicamentoComponent implements OnInit {
   searchText: string = '';
 
   searchMedicamento() {
+    console.log(this.filteredMedicamentos)
     this.filteredMedicamentos = this.medicamentos.filter(
       (medicamento) =>
         medicamento.nombre
@@ -239,7 +292,7 @@ export class MedicamentoComponent implements OnInit {
         this.medicamentos = data;
         this.filteredMedicamentos = data;
       },
-      error: (err) => console.log(err)
+      error: (err) => console.log(err),
     });
   }
 

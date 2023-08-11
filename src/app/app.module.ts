@@ -4,24 +4,16 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms'
-import { PrimengModule } from './primeng/primeng.module';
-import { MedicamentoComponent } from './pages/medicamentos/medicamento.component';
-
 
 @NgModule({
   declarations: [
-    AppComponent,
-    MedicamentoComponent
+    AppComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
-    HttpClientModule,
-    ReactiveFormsModule,
-    FormsModule,
-    PrimengModule
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]
