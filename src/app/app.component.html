@@ -1,11 +1,13 @@
+<div class="card">
+    <p-menubar [model]="items">
+        <ng-template pTemplate="start">
+            <img src="https://static.vecteezy.com/system/resources/previews/006/303/676/non_2x/pharmacy-logo-template-icon-symbol-design-free-vector.jpg"
+                width="80" height="80" class="mr-2" />
+        </ng-template>
+    </p-menubar>
+</div>
 
-<ul>
-    <li>
-        <a routerLink="/">Medicamentos</a>
-    </li>
-    <li>
-        <a routerLink="/ventas">Ventas</a>
-    </li>
-</ul>
+<h1 class="text-4xl font-semibold text-center mt-8">{{title}}</h1>
+
 
 <router-outlet></router-outlet>

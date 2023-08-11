@@ -9,6 +9,8 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CardModule } from 'primeng/card';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
+import { CalendarModule } from 'primeng/calendar';
+
 
 @NgModule({
   exports:[
@@ -22,6 +24,7 @@ import { DynamicDialogModule } from 'primeng/dynamicdialog';
     InputNumberModule,
     CardModule,
     DynamicDialogModule,
+    CalendarModule,
     
   ]
 })

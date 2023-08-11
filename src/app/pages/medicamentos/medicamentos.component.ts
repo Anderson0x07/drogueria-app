@@ -30,9 +30,13 @@ export class MedicamentosComponent implements OnInit {
   header = '';
   venta = false;
 
-  stockDisponible = 50;
+  total_pagar = 0;
 
-  title = 'Drogueria Konex';
+  valor_unitario = 0;
+
+  stockDisponible = 0;
+
+  cantidad = 0;
 
   medicamentos: Medicamento[] = [];
   filteredMedicamentos: Medicamento[] = [];
@@ -105,14 +109,17 @@ export class MedicamentosComponent implements OnInit {
       lab_fabrica: this.medicineForm.controls['lab_fabrica'].value,
       fecha_fabricacion: this.medicineForm.controls['fecha_fabricacion'].value,
       fecha_vencimiento: this.medicineForm.controls['fecha_vencimiento'].value,
-      stock: parseInt(this.medicineForm.controls['stock'].value),
-      valor_unitario: parseFloat(
-        this.medicineForm.controls['valor_unitario'].value
-      ),
+      stock: this.medicineForm.controls['stock'].value,
+      valor_unitario: this.medicineForm.controls['valor_unitario'].value,
     };
+
+    console.log(medicineUpdated)
 
     this.medicamentoService.editMedicine(medicineUpdated, id).subscribe({
       next: (res: any) => {
+        console.log("fetch")
+
+        console.log(res)
         this.visible = false;
         this.listar();
         Swal.fire({
@@ -236,6 +243,10 @@ export class MedicamentosComponent implements OnInit {
     });
   }
 
+  verTotalPagar(){
+    this.total_pagar = this.valor_unitario * this.cantidad;
+  }
+
   abrirVentaModal(id: string) {
     this.medicineId = id;
     this.venta = true;
@@ -243,7 +254,8 @@ export class MedicamentosComponent implements OnInit {
 
     this.medicamentoService.getMedicine(id).subscribe({
       next: (data) => {
-        this.stockDisponible = data.stock
+        this.stockDisponible = data.stock;
+        this.valor_unitario = data.valor_unitario;
       },
       error: (err) => console.log(err)
     })

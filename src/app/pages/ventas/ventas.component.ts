@@ -24,6 +24,9 @@ export class VentasComponent implements OnInit{
   ventas: Venta[] = [];
   filteredVentas: Venta[] = [];
 
+  startDate: Date = new Date();
+  endDate: Date = new Date();
+
   /**
    * Header de la tabla de ventas
    */
@@ -39,15 +42,22 @@ export class VentasComponent implements OnInit{
 
   searchVenta() {
     console.log(this.filteredVentas)
-    this.filteredVentas = this.ventas.filter(
+    /*this.filteredVentas = this.ventas.filter(
       (venta) =>
         venta.fecha_venta.toLowerCase().includes(this.searchText.toLowerCase())
+    );*/
+
+    this.filteredVentas = this.ventas.filter(
+      venta =>
+        new Date(venta.fecha_venta) >= this.startDate &&
+        new Date(venta.fecha_venta) <= this.endDate
     );
   }
 
   ngOnInit(): void {
     this.ventaService.getAllSales().subscribe({
       next: (data) => {
+        console.log(data)
         this.ventas = data;
         this.filteredVentas = data;
       },
